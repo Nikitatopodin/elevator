@@ -1,16 +1,15 @@
 <script setup>
-import Elevator from '../components/Elevator.vue'
+import Elevator from '../components/Elevator.vue';
+import { useGeneralStore } from '@/stores/store';
+
+const store = useGeneralStore();
 </script>
 
 <template>
   <div class="shaft">
     <div class="levels">
       <ul class="levels__list">
-        <li class="levels__item">1</li>
-        <li class="levels__item">2</li>
-        <li class="levels__item">3</li>
-        <li class="levels__item">4</li>
-        <li class="levels__item">5</li>
+        <li class="levels__item" v-for="(level, index) in store.levels" :key="index">{{ index + 1 }}</li>
       </ul>
     </div>
 

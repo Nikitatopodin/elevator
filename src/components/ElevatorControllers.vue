@@ -1,29 +1,17 @@
 <script setup>
+import { useGeneralStore } from '@/stores/store';
+
+const store = useGeneralStore();
 
 </script>
 
 <template>
+
   <div class="controllers">
     <ul class="controllers__list">
-      <li class="controllers__item">
-        <span class="level">1</span>
-        <button class="btn"></button>
-      </li>
-      <li class="controllers__item">
-        <span class="level">2</span>
-        <button class="btn"></button>
-      </li>
-      <li class="controllers__item">
-        <span class="level">3</span>
-        <button class="btn"></button>
-      </li>
-      <li class="controllers__item">
-        <span class="level">4</span>
-        <button class="btn"></button>
-      </li>
-      <li class="controllers__item">
-        <span class="level">5</span>
-        <button class="btn"></button>
+      <li class="controllers__item" v-for="(level, index) in store.levels">
+        <span class="level" v-html="index + 1"></span>
+        <button class="btn" @click="store.addCallToQueue(index + 1)"></button>
       </li>
     </ul>
   </div>
@@ -56,3 +44,4 @@
   height: 15px;
 }
 </style>
+@/stores/store
