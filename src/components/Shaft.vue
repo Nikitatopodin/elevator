@@ -3,6 +3,9 @@ import Elevator from '../components/Elevator.vue';
 import { useGeneralStore } from '@/stores/store';
 
 const store = useGeneralStore();
+
+const props = defineProps(['elevId']);
+const id = props.elevId;
 </script>
 
 <template>
@@ -13,7 +16,7 @@ const store = useGeneralStore();
       </ul>
     </div>
 
-    <Elevator />
+    <Elevator :elev-id="id" />
   </div>
 </template>
 <style scoped>
