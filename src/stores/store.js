@@ -1,13 +1,18 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import options from '@/options'
 
 export const useElevatorsStore = defineStore('elevator', () => {
-  const elevators = ref([{
-    id: ref(0),
-    currentLevel: ref(1),
-    isMoving: ref(false),
-    targetLevel: null
-  }])
+  const elevators = ref([]);
+
+  for (let i = 0; i < options.elevators; i++) {
+    elevators.value.push({
+      id: ref(i),
+      currentLevel: ref(1),
+      isMoving: ref(false),
+      targetLevel: null
+    })
+  }
 
   function toggleIsMoving(id) {
     elevators.value[id].isMoving = !elevators.value[id].isMoving;
@@ -33,7 +38,7 @@ export const useElevatorsStore = defineStore('elevator', () => {
 })
 
 export const useGeneralStore = defineStore('callQueue', () => {
-  const levels = ref(5);
+  const levels = ref(options.levels);
   const callQueue = [];
 
   function addCallToQueue(level) {
