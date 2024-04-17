@@ -42,20 +42,25 @@ const callElevator = (targetLevel) => {
   }
   const elevator = closestElevator.elevator;
   const delay = closestElevator.difference * 1000;
-  elevatorsStore.toggleIsMoving(elevator.id);
   elevatorsStore.setTargetLevel(elevator.id, targetLevel);
+  elevatorsStore.toggleIsMoving(elevator.id);
   if (store.callQueue.length > 0) {
     store.removeCallFromQueue();
   }
   setTimeout(() => {
-    elevatorsStore.toggleIsMoving(elevator.id);
     elevatorsStore.setTargetLevel(elevator.id, null);
     elevatorsStore.setCurrentLevel(elevator.id, targetLevel);
+    elevatorsStore.toggleIsMoving(elevator.id);
     if (store.callQueue.length > 0) {
       callElevator(store.callQueue[0]);
     }
   }, delay + 3000);
 
+}
+
+if (store.callQueue.length > 0) {
+  const queue = store.callQueue;
+  queue.forEach(call => setTimeout(() => callElevator(call)))
 }
 </script>
 
