@@ -3,15 +3,19 @@ import { defineStore } from 'pinia'
 import options from '@/options'
 
 export const useElevatorsStore = defineStore('elevator', () => {
-  window.onbeforeunload = () => localStorage.setItem('elevator-store', JSON.stringify(elevators.value))
+  window.addEventListener('beforeunload', () => {
+    localStorage.setItem('elevator-store', JSON.stringify(elevators.value))
+  })
   const getDefaultOptions = () => {
     const arr = [];
     for (let i = 0; i < options.elevators; i++) {
       arr.push({
         id: ref(i),
+        prevLevel: ref(null),
         currentLevel: ref(1),
         isMoving: ref(false),
-        targetLevel: ref(null)
+        targetLevel: ref(null),
+        isReady: ref(true),
       })
     }
     return arr
@@ -28,7 +32,8 @@ export const useElevatorsStore = defineStore('elevator', () => {
         ...elevator,
         currentLevel: ref(elevator.targetLevel ? elevator.targetLevel : elevator.currentLevel),
         targetLevel: ref(null),
-        isMoving: ref(false)
+        isMoving: ref(false),
+        isReady: ref(true),
       }
       return elevatorObj
     });
@@ -36,6 +41,7 @@ export const useElevatorsStore = defineStore('elevator', () => {
   }
 
   const elevators = ref(getOptions());
+  const timeouts = ref([]);
 
   function toggleIsMoving(id) {
     elevators.value[id].isMoving = !elevators.value[id].isMoving;
@@ -49,34 +55,136 @@ export const useElevatorsStore = defineStore('elevator', () => {
     elevators.value[id].currentLevel = ref(level);
   }
 
+  function setPrevLevel(id, level) {
+    elevators.value[id].prevLevel = ref(level);
+  }
+
   function getStartElevatorPos(id) {
-    return Math.abs(elevators.value[id].currentLevel - elevators.value[id].targetLevel);
+    return Math.abs(elevators.value[id].prevLevel - elevators.value[id].targetLevel);
   }
 
   function getTargetLevels() {
     return elevators.value.map(elevator => elevator.targetLevel);
   }
-  return { elevators, toggleIsMoving, setCurrentLevel, setTargetLevel, getStartElevatorPos, getTargetLevels }
+
+  function getCurrentLevels() {
+    return elevators.value.map(elevator => elevator.currentLevel);
+  }
+
+  function getPrevLevels() {
+    return elevators.value.map(elevator => elevator.prevLevel);
+  }
+
+  function toggleIsReady(id) {
+    elevators.value[id].isReady = !elevators.value[id].isReady
+  }
+
+  function resetElevators() {
+    elevators.value = getDefaultOptions();
+    timeouts.value.forEach(timeout => clearTimeout(timeout))
+    timeouts.value = [];
+  }
+
+  function resetElevatorsPositions() {
+    elevators.value = elevators.value.map(elevator => {
+      const elevatorObj = {
+        ...elevator,
+        currentLevel: ref(1),
+        prevLevel: ref(null)
+      }
+      return elevatorObj
+    })
+  }
+
+  function setElevatorsNum(num) {
+    if (num > elevators.value.length) {
+      for (let i = elevators.value.length; i < num; i++) {
+        elevators.value.push({
+          id: ref(i),
+          currentLevel: ref(1),
+          isMoving: ref(false),
+          targetLevel: ref(null),
+          isReady: ref(true),
+        })
+      }
+    } else {
+      for (let i = elevators.value.length; i > num; i--) {
+        elevators.value.pop()
+      }
+    }
+  }
+
+  function correctElevatorsPos(num) {
+    elevators.value.forEach(elevator => {
+      if (elevator.currentLevel > num) {
+        elevator.currentLevel = num;
+      }
+    })
+  }
+
+  return {
+    elevators,
+    timeouts,
+    toggleIsMoving,
+    setCurrentLevel,
+    setTargetLevel,
+    setPrevLevel,
+    getStartElevatorPos,
+    getTargetLevels,
+    toggleIsReady,
+    getCurrentLevels,
+    getPrevLevels,
+    setElevatorsNum,
+    getDefaultOptions,
+    resetElevators,
+    resetElevatorsPositions,
+    correctElevatorsPos
+  }
 })
 
-export const useGeneralStore = defineStore('callQueue', () => {
-  const levels = ref(options.levels);
+export const useGeneralStore = defineStore('store', () => {
+  window.addEventListener('beforeunload', (e) => {
+    localStorage.setItem('elevator-settings', JSON.stringify(levels.value))
+  })
+
+  const getSettings = () => {
+    const storageSettings = localStorage.getItem('elevator-settings');
+    if (!storageSettings) {
+      return options.levels
+    }
+
+    return JSON.parse(localStorage.getItem('elevator-settings'));
+  }
+
+  const levels = ref(getSettings());
   const savedQueue = localStorage.getItem('callQueue');
-  const callQueue = savedQueue ? JSON.parse(savedQueue) : [];
+  const callQueue = savedQueue ? ref(JSON.parse(savedQueue)) : ref([]);
 
   function addCallToQueue(level) {
-    if (!callQueue.includes(level)) {
-      callQueue.push(level);
-      localStorage.setItem('callQueue', JSON.stringify(callQueue));
+    if (!callQueue.value.includes(level)) {
+      callQueue.value.push(level);
+      localStorage.setItem('callQueue', JSON.stringify(callQueue.value));
     }
     return
   }
 
   function removeCallFromQueue() {
-    callQueue.shift();
-    localStorage.setItem('callQueue', JSON.stringify(callQueue));
+    callQueue.value.shift();
+    localStorage.setItem('callQueue', JSON.stringify(callQueue.value));
   }
 
-  return { callQueue, addCallToQueue, removeCallFromQueue, levels }
+  function setLevelsNum(num) {
+    if (num > 800) {
+      num = 800;
+    }
+    levels.value = num;
+  }
+
+  function resetSettings() {
+    levels.value = options.levels;
+    callQueue.value = [];
+  }
+
+  return { callQueue, addCallToQueue, removeCallFromQueue, levels, setLevelsNum, resetSettings }
 })
 
