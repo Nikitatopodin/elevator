@@ -15,10 +15,10 @@ const id = props.elevId;
         <li class="levels__item" v-for="(level, index) in store.levels" :key="index">{{ index + 1 }}</li>
       </ul>
     </div>
-
     <Elevator :elev-id="id" />
   </div>
 </template>
+
 <style scoped>
 .shaft {
   position: relative;
@@ -37,20 +37,22 @@ const id = props.elevId;
 }
 
 .levels__list {
-  padding: 0;
-  width: 100%;
   display: flex;
   flex-direction: column-reverse;
   justify-content: space-between;
 
+  width: 100%;
   height: 100%;
+  padding: 0;
 }
 
 .levels__item {
   display: block;
+
   width: 100%;
   height: 100%;
   min-height: 50px;
+
   border-top: 1px solid black;
 }
 

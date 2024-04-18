@@ -5,6 +5,7 @@ import { useGeneralStore } from '@/stores/store';
 const elevatorsStore = useElevatorsStore();
 const store = useGeneralStore();
 let elevators, levels;
+
 const changeSettings = (elevatorsNum, levelsNum) => {
   if (elevatorsNum < 0) elevatorsNum = 0;
   if (levelsNum < 0) levelsNum = 0;
@@ -12,6 +13,7 @@ const changeSettings = (elevatorsNum, levelsNum) => {
     levelsNum = 800;
     levels = 800;
   }
+
   if (elevatorsNum) {
     elevatorsStore.setElevatorsNum(elevatorsNum)
   }
@@ -25,9 +27,8 @@ const reset = () => {
   elevatorsStore.resetElevators();
   store.resetSettings();
 }
-
-
 </script>
+
 <template>
   <div class="options">
     <ul class="options__list">
@@ -53,6 +54,7 @@ const reset = () => {
     </ul>
   </div>
 </template>
+
 <style scoped>
 .options {
   padding: 20px 40px;
@@ -62,7 +64,6 @@ const reset = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-
 
   margin-bottom: 10px;
 }

@@ -35,7 +35,7 @@ const getCurrentPos = () => {
 <template>
   <div class="elevator" :style="{
     transform: `translateY(-${(getCurrentPos() - 1) * 100}%)`,
-    transition: `linear ${elevatorsStore.getStartElevatorPos(id)}s`,
+    transition: `linear ${elevatorsStore.getPosDifference(id)}s`,
     height: `${100 / store.levels}%`
   }">
     <div
