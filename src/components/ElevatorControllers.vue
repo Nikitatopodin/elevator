@@ -4,6 +4,14 @@ import { useGeneralStore, useElevatorsStore } from '@/stores/store';
 const store = useGeneralStore();
 const elevatorsStore = useElevatorsStore();
 
+const isCalled = (index) => {
+  const targetLevels = elevatorsStore.getTargetLevels();
+  if (store.callQueue.includes(index) || targetLevels.includes(index)) {
+    return true
+  }
+  return false;
+}
+
 const getClosestElevator = (targetLevel) => {
   let delay;
   const stationaryElevators = elevatorsStore.elevators.filter(elevator => !elevator.isMoving);
@@ -32,29 +40,42 @@ const getClosestElevator = (targetLevel) => {
 }
 
 const callElevator = (targetLevel) => {
-  if (elevatorsStore.getTargetLevels().includes(targetLevel)) {
+  if (elevatorsStore.getTargetLevels().includes(targetLevel)
+    || elevatorsStore.getCurrentLevels().includes(targetLevel)) {
     return
   }
+
   const closestElevator = getClosestElevator(targetLevel);
   if (!closestElevator) {
     store.addCallToQueue(targetLevel);
     return
   }
+
+
   const elevator = closestElevator.elevator;
   const delay = closestElevator.difference * 1000;
+
   elevatorsStore.setTargetLevel(elevator.id, targetLevel);
+  elevatorsStore.setPrevLevel(elevator.id, elevator.currentLevel);
+  elevatorsStore.setCurrentLevel(elevator.id, null);
   elevatorsStore.toggleIsMoving(elevator.id);
   if (store.callQueue.length > 0) {
     store.removeCallFromQueue();
   }
-  setTimeout(() => {
+  const timeout = setTimeout(() => {
     elevatorsStore.setTargetLevel(elevator.id, null);
+    elevatorsStore.setPrevLevel(elevator.id, null);
     elevatorsStore.setCurrentLevel(elevator.id, targetLevel);
-    elevatorsStore.toggleIsMoving(elevator.id);
-    if (store.callQueue.length > 0) {
-      callElevator(store.callQueue[0]);
-    }
-  }, delay + 3000);
+    elevatorsStore.toggleIsReady(elevator.id);
+    setTimeout(() => {
+      elevatorsStore.toggleIsReady(elevator.id);
+      elevatorsStore.toggleIsMoving(elevator.id);
+      if (store.callQueue.length > 0) {
+        callElevator(store.callQueue[0]);
+      }
+    }, 3000)
+  }, delay);
+  elevatorsStore.timeouts.push(timeout)
 
 }
 
@@ -70,7 +91,7 @@ if (store.callQueue.length > 0) {
     <ul class="controllers__list">
       <li class="controllers__item" v-for="(level, index) in store.levels">
         <span class="level" v-html="index + 1"></span>
-        <button class="btn" @click="callElevator(index + 1)"></button>
+        <button :class="isCalled(index + 1) ? 'btn btn--active' : 'btn'" @click="callElevator(index + 1)"></button>
       </li>
     </ul>
   </div>
@@ -101,5 +122,9 @@ if (store.callQueue.length > 0) {
 .btn {
   display: block;
   height: 15px;
+}
+
+.btn--active {
+  background-color: brown;
 }
 </style>
