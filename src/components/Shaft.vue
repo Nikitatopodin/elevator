@@ -28,8 +28,6 @@ const id = props.elevId;
   justify-content: flex-end;
 
   width: 100px;
-  min-height: calc(120px*5);
-  height: 100vh;
   border: 1px solid black;
 }
 
@@ -52,6 +50,7 @@ const id = props.elevId;
   display: block;
   width: 100%;
   height: 100%;
+  min-height: 50px;
   border-top: 1px solid black;
 }
 
