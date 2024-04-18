@@ -5,19 +5,24 @@ const store = useGeneralStore();
 const elevatorsStore = useElevatorsStore();
 
 const isCalled = (index) => {
+  const queue = store.callQueue
   const targetLevels = elevatorsStore.getTargetLevels();
-  if (store.callQueue.includes(index) || targetLevels.includes(index)) {
+
+  if (queue.includes(index) || targetLevels.includes(index)) {
     return true
   }
+
   return false;
 }
 
 const getClosestElevator = (targetLevel) => {
   let delay;
   const stationaryElevators = elevatorsStore.elevators.filter(elevator => !elevator.isMoving);
+
   if (stationaryElevators.length < 1) {
     return;
   }
+
   const closestElevator = stationaryElevators.reduce((acc, elevator) => {
     const difference = Math.abs(targetLevel - elevator.currentLevel);
     if (!acc) {
@@ -40,8 +45,9 @@ const getClosestElevator = (targetLevel) => {
 }
 
 const callElevator = (targetLevel) => {
-  if (elevatorsStore.getTargetLevels().includes(targetLevel)
-    || elevatorsStore.getCurrentLevels().includes(targetLevel)) {
+  const targetLevels = elevatorsStore.getTargetLevels();
+  const currentLevels = elevatorsStore.getCurrentLevels();
+  if (targetLevels.includes(targetLevel) || currentLevels.includes(targetLevel)) {
     return
   }
 
@@ -51,7 +57,6 @@ const callElevator = (targetLevel) => {
     return
   }
 
-
   const elevator = closestElevator.elevator;
   const delay = closestElevator.difference * 1000;
 
@@ -59,9 +64,11 @@ const callElevator = (targetLevel) => {
   elevatorsStore.setPrevLevel(elevator.id, elevator.currentLevel);
   elevatorsStore.setCurrentLevel(elevator.id, null);
   elevatorsStore.toggleIsMoving(elevator.id);
+
   if (store.callQueue.length > 0) {
     store.removeCallFromQueue();
   }
+
   const timeout = setTimeout(() => {
     elevatorsStore.setTargetLevel(elevator.id, null);
     elevatorsStore.setPrevLevel(elevator.id, null);
@@ -75,8 +82,8 @@ const callElevator = (targetLevel) => {
       }
     }, 3000)
   }, delay);
-  elevatorsStore.timeouts.push(timeout)
 
+  elevatorsStore.timeouts.push(timeout)
 }
 
 if (store.callQueue.length > 0) {
@@ -115,12 +122,14 @@ if (store.callQueue.length > 0) {
 
 .controllers__item {
   display: block;
+
   height: 100%;
   width: 100%;
 }
 
 .btn {
   display: block;
+
   height: 15px;
 }
 
