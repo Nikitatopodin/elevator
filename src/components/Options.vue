@@ -43,7 +43,8 @@ const reset = () => {
     </ul>
     <ul class="options__btn-list">
       <li class="options__btn-item">
-        <button @click="elevatorsStore.resetElevatorsPositions()">Переместить в начало</button>
+        <button :class="elevatorsStore.getMovingElevators().length > 0 ? 'btn btn--disabled' : 'btn'"
+          @click="elevatorsStore.resetElevatorsPositions()">Переместить в начало</button>
       </li>
       <li class="options__btn-item">
         <button @click="changeSettings(elevators, levels)">Применить</button>
@@ -81,5 +82,10 @@ const reset = () => {
 
 .label {
   padding: 0 5px;
+}
+
+.btn--disabled {
+  color: rgb(166, 166, 166);
+  pointer-events: none;
 }
 </style>

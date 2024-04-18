@@ -123,6 +123,10 @@ export const useElevatorsStore = defineStore('elevator', () => {
     })
   }
 
+  function getMovingElevators() {
+    return elevators.value.filter(elevator => !!elevator.isMoving);
+  }
+
   return {
     elevators,
     timeouts,
@@ -139,7 +143,8 @@ export const useElevatorsStore = defineStore('elevator', () => {
     getDefaultOptions,
     resetElevators,
     resetElevatorsPositions,
-    correctElevatorsPos
+    correctElevatorsPos,
+    getMovingElevators
   }
 })
 
