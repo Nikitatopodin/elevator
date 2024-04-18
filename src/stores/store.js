@@ -4,8 +4,9 @@ import options from '@/options'
 
 export const useElevatorsStore = defineStore('elevator', () => {
   window.addEventListener('beforeunload', () => {
-    localStorage.setItem('elevator-store', JSON.stringify(elevators.value))
+    localStorage.setItem('elevator-store#5151', JSON.stringify(elevators.value))
   })
+
   const getDefaultOptions = () => {
     const arr = [];
     for (let i = 0; i < options.elevators; i++) {
@@ -22,7 +23,7 @@ export const useElevatorsStore = defineStore('elevator', () => {
   }
 
   const getOptions = () => {
-    const options = localStorage.getItem('elevator-store');
+    const options = localStorage.getItem('elevator-store#5151');
     if (!options) {
       return getDefaultOptions();
     }
@@ -59,7 +60,7 @@ export const useElevatorsStore = defineStore('elevator', () => {
     elevators.value[id].prevLevel = ref(level);
   }
 
-  function getStartElevatorPos(id) {
+  function getPosDifference(id) {
     return Math.abs(elevators.value[id].prevLevel - elevators.value[id].targetLevel);
   }
 
@@ -129,7 +130,7 @@ export const useElevatorsStore = defineStore('elevator', () => {
     setCurrentLevel,
     setTargetLevel,
     setPrevLevel,
-    getStartElevatorPos,
+    getPosDifference,
     getTargetLevels,
     toggleIsReady,
     getCurrentLevels,
@@ -144,33 +145,33 @@ export const useElevatorsStore = defineStore('elevator', () => {
 
 export const useGeneralStore = defineStore('store', () => {
   window.addEventListener('beforeunload', (e) => {
-    localStorage.setItem('elevator-settings', JSON.stringify(levels.value))
+    localStorage.setItem('elevator-settings#5151', JSON.stringify(levels.value))
   })
 
   const getSettings = () => {
-    const storageSettings = localStorage.getItem('elevator-settings');
+    const storageSettings = localStorage.getItem('elevator-settings#5151');
     if (!storageSettings) {
       return options.levels
     }
 
-    return JSON.parse(localStorage.getItem('elevator-settings'));
+    return JSON.parse(localStorage.getItem('elevator-settings#5151'));
   }
 
   const levels = ref(getSettings());
-  const savedQueue = localStorage.getItem('callQueue');
+  const savedQueue = localStorage.getItem('call-queue#5151');
   const callQueue = savedQueue ? ref(JSON.parse(savedQueue)) : ref([]);
 
   function addCallToQueue(level) {
     if (!callQueue.value.includes(level)) {
       callQueue.value.push(level);
-      localStorage.setItem('callQueue', JSON.stringify(callQueue.value));
+      localStorage.setItem('call-queue#5151', JSON.stringify(callQueue.value));
     }
     return
   }
 
   function removeCallFromQueue() {
     callQueue.value.shift();
-    localStorage.setItem('callQueue', JSON.stringify(callQueue.value));
+    localStorage.setItem('call-queue#5151', JSON.stringify(callQueue.value));
   }
 
   function setLevelsNum(num) {
@@ -185,6 +186,12 @@ export const useGeneralStore = defineStore('store', () => {
     callQueue.value = [];
   }
 
-  return { callQueue, addCallToQueue, removeCallFromQueue, levels, setLevelsNum, resetSettings }
+  return {
+    callQueue,
+    levels,
+    addCallToQueue,
+    removeCallFromQueue,
+    setLevelsNum,
+    resetSettings
+  }
 })
-
